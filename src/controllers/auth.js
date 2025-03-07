@@ -57,6 +57,7 @@ authRouter.post('/login', async (ctx) => {
 
   ctx.status = 200;
   ctx.body = { ok: true, token };
+  ctx.cookies.set('token', token, { httpOnly: true });
 });
 
 authRouter.post('/logout', async (ctx) => {

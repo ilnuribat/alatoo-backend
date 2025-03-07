@@ -52,6 +52,25 @@ async function main() {
   app.use(authRouter.routes());
 
   app.use(async (ctx, next) => {
+    const cookieToken = ctx.cookies.get('token');
+
+    if (cookieToken) {
+      const { rows: [userInfo] } = await knex.raw(`
+        select * from tokens
+        inner join users
+          on users.id = tokens.user_id
+        where tokens.token = ?
+      `, [cookieToken]);
+
+      if (!userInfo) {
+        throw new Error('NOT AUTHORIZED');
+      }
+
+      ctx.state.user = userInfo;
+
+      return next();
+    }
+
     const { headers } = ctx.request;
     const { authorization } = headers;
     const token = authorization?.split(' ')[1];
@@ -72,6 +91,7 @@ async function main() {
 
       return next();
     }
+
 
     throw new Error('NOT AUTHORIZED');
   });
