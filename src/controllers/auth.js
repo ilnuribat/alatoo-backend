@@ -61,7 +61,24 @@ authRouter.post('/login', async (ctx) => {
 });
 
 authRouter.post('/logout', async (ctx) => {
+  ctx.cookies.set('token', '', { httpOnly: true });
+  const { headers } = ctx.request;
+  const { authorization } = headers;
+  const token = authorization?.split(' ')[1];
 
+  const knex = await getKnex();
+  if (token) {
+    await knex('tokens').where({ token }).del();
+  }
+
+
+  const cookieToken = ctx.cookies.get('token');
+
+  if (cookieToken) {
+    await knex('tokens').where({ token: cookieToken }).del();
+  }
+
+  ctx.status = 200;
 });
 
 export { authRouter };

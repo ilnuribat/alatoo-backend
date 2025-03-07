@@ -1,5 +1,4 @@
 import Router from 'koa-router';
-import Joi from 'joi';
 import { getKnex } from '../knex.js';
 
 export * from './auth.js';
